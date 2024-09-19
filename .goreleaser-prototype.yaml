@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
+builds:
+  - id: release
+    binary: chinmina-bridge
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+checksum:
+  name_template: "checksums.txt"
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
+changelog:
+  use: github-native
+  sort: asc
+
+# Sign with cosign -- this picks up the OIDC token from the environment in GHA.
+# If you do this locally, sign with an OAuth identity you don't mind being permanently
+# published to a transparency log.
+binary_signs:
+  - cmd: cosign
+    args:
+      - "sign-blob"
+      - "${artifact}"
+      - "--yes" # needed on cosign 2.0.0+
+
+# release:
+#   disable: true
+#   prerelease: auto
+#   header: |
+#     Distributions for this release are published as binaries and a Docker image.
+
+#     The preferred way to consume a release is via its [Docker image](https://hub.docker.com/r/chinmina/chinmina-bridge):
+
+#     ```text
+#     chinmina/chinmina-bridge:{{ .Tag }}
+#     ```
+
+#     The multi-platform image is published for Linux x86-64 and Linux ARM-64.
+
+#     If needed, binaries of this build (including Mac) can be found below.
+
+# kos:
+#   -
+#     id: chinmina-bridge
+#     build: release
+#     working_dir: .
+#     base_image: cgr.dev/chainguard/static
+
+#     repository: chinmina
+
+#     # Platforms to build and publish.
+#     #
+#     # Default: 'linux/amd64'
+#     platforms:
+#       - linux/amd64
+#       - linux/arm64
+
+#     # Tag to build and push.
+#     # Empty tags are ignored.
+#     #
+#     # Default: 'latest'
+#     # Templates: allowed
+#     tags:
+#       - "{{if not .Prerelease}}latest{{end}}"
+#       - "{{.Tag}}"
+
+#     sbom: spdx
+
+#     # Bare uses a tag on the $KO_DOCKER_REPO without anything additional.
+#     bare: true
+
+#     # Whether to preserve the full import path after the repository name.
+#     preserve_import_paths: false
+
+#     # Whether to use the base path without the MD5 hash after the repository name.
+#     base_import_paths: true
