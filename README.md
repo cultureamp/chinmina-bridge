@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Culture Amp employees is now maintaining the upstream directly rather than via a fork.
+
 # Chinmina Bridge
 
 **Connect Buildkite to GitHub with secure, short-lived tokens.**
